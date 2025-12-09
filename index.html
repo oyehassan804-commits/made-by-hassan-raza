@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate Your Age (3-Card Row Layout 2-1-3 Final)</title> 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ------------------------------------- */
+        /* --- CSS STYLING (FINAL CENTERING & ORDERING) --- */
+        /* ------------------------------------- */
+        
+        /* Star Animation Variables */
+        :root {
+            --star-color: #ffffff;
+            --star-count: 40;
+            --star-size: 1px;
+            --star-speed: 10s;
+        }
+
+        /* Base Body and Starry Night Background */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background: #000000; 
+            color: #333;
+            text-align: center;
+            overflow-x: hidden; 
+            position: relative;
+        }
+
+        /* Starry Animation (UNCHANGED) */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background: transparent;
+        }
+
+        .stars::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--star-color) var(--star-size), transparent var(--star-size));
+            background-size: 100px 100px;
+            opacity: 0.7;
+            animation: stars-move var(--star-speed) linear infinite;
+        }
+
+        @keyframes stars-move {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* Main Container for overall layout */
+        .main-container {
+            position: relative; 
+            z-index: 10; 
+            max-width: 1240px; 
+            width: 95%;
+            padding: 20px 0; 
+            box-sizing: border-box; 
+            /* Added flex for consistent centering of the input card initially */
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+        }
+
+        /* --- Header Styles (Consistent across all cards) --- */
+        .card-title {
+            color: #3f2b96;
+            margin-bottom: 25px;
+            font-size: 1.8em; 
+            font-weight: 900; 
+        }
+        
+        /* General styling for ALL three cards (Input and Results) */
+        .age-card {
+            background: #ffffff;
+            padding: 20px 20px 20px 30px; 
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); 
+            min-width: 300px; 
+            max-width: 400px; 
+            width: 100%; 
+            box-sizing: border-box;
+            margin-bottom: 20px; 
+        }
+
+        /* Input Card initial state style (Centered by main-container) */
+        .input-card {
+            margin: 0 0 30px 0; /* Adjusted margin since parent centers it */
+        }
+        
+        /* Remove input-card specific margin when it joins the row */
+        #input-card-main {
+             margin: 0;
+        }
+        
+        /* --- General Input/Button Styles (UNCHANGED) --- */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #3f2b96;
+        }
+
+        input[type="date"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #a8c0ff;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            cursor: pointer;
+            margin-bottom: 10px; 
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #f5576c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #d8455a;
+        }
+        
+        #error-message {
+            color: #f5576c;
+            margin-top: 10px;
+            font-size: 0.9em;
+            font-weight: 700;
+        }
+        
+        /* --- Results Area Layout (The main Flex Container) --- */
+        .results-flex-container {
+            display: flex;
+            gap: 20px; 
+            flex-wrap: wrap; 
+            /* FINAL FIX: Center the entire row of 3 cards on the desktop */
+            justify-content: center; 
+        }
+
+        /* Hide the result display initially */
+        #results-display {
+            display: none; 
+            width: 100%;
+        }
+        
+        /* Headings inside result cards */
+        .result-card h2 {
+            color: #3f2b96; 
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #f5576c;
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+        
+        /* --- Card 2: Summary Info --- */
+        #primary-info-card {
+            order: 2; 
+            text-align: center;
+        }
+        
+        /* Exact Age Title Adjustment */
+        #exact-age {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #3f2b96;
+            font-weight: 700;
+            background: #e6e6ff;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .info-box {
+            font-size: 1em;
+            color: #3f2b96;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        #next-birthday { background: #c3e6cb; }
+        #zodiac-sign { background: #ffcc99; }
+
+        /* --- Footer Style (Moved into Card 3) --- */
+        .footer {
+            margin-top: 20px; 
+            padding: 8px; 
+            font-size: 0.9em;
+            font-weight: 700;
+            text-align: center;
+            background: #000000; 
+            color: white; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); 
+        }
+
+        /* --- Card 3: Detailed Units --- */
+        #detailed-units-card {
+            order: 3; 
+            text-align: left;
+        }
+
+        /* Detailed Units Grid: 2 columns */
+        #detailed-age {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .unit-card {
+            background: #e6e6ff;
+            padding: 15px 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .unit-value {
+            font-size: 1.3em; 
+            font-weight: 900;
+            color: #3f2b96;
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .unit-label {
+            font-size: 0.75em; 
+            font-weight: 400;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        /* --- Mobile Responsiveness (Stacked Layout) --- */
+        @media (max-width: 1023px) {
+            body {
+                padding: 0 10px; 
+            }
+            .main-container {
+                width: 100%;
+                max-width: none;
+                align-items: stretch; /* Allow cards to stretch full width */
+            }
+            
+            .results-flex-container {
+                flex-direction: column; 
+            }
+            .age-card {
+                min-width: 90%;
+                max-width: none;
+                margin-left: auto;
+                margin-right: auto;
+                padding: 15px 15px 15px 20px; 
+            }
+            
+            /* Order: Input (1), Summary (2), Details (3) */
+            #input-card-main { order: 1; margin: 0 auto 20px auto !important; }
+            #primary-info-card { order: 2; }
+            #detailed-units-card { order: 3; }
+        }
+        
+        /* DESKTOP LOGIC: 3 Cards in a Row (2 - 1 - 3 Order) */
+        @media (min-width: 1024px) {
+            .results-flex-container {
+                flex-direction: row; 
+                width: 100%;
+                justify-content: center; /* This is the fix for centering the entire row */
+            }
+            
+            .age-card {
+                flex: 0 1 400px; 
+                margin-bottom: 0;
+            }
+            
+            /* --- THE CRITICAL ORDERING: 2 - 1 - 3 --- */
+            /* Summary (Card 2) is Left (Order 1) */
+            #primary-info-card {
+                order: 1; 
+            }
+            /* Input (Card 1) is Center (Order 2) */
+            #input-card-main {
+                order: 2; 
+            }
+            /* Details (Card 3) is Right (Order 3) */
+            #detailed-units-card {
+                order: 3; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+
+    <div class="main-container">
+        
+        <div class="input-card age-card" id="input-card-main">
+            <h1 class="card-title">Calculate Your Age ⏱️</h1> 
+            
+            <div class="input-group">
+                <label for="name">Enter Your Name (Required):</label>
+                <input type="text" id="name" placeholder="Enter name here" required>
+
+                <label for="dob">Enter Your Date of Birth (Past Date Only):</label>
+                <input type="date" id="dob" required>
+            </div>
+            
+            <button onclick="calculateAge()">Calculate Full Age</button>
+            
+            <div id="error-message"></div>
+        </div>
+
+        <div class="results-flex-container" id="results-display">
+            
+            <div class="result-card age-card" id="primary-info-card">
+                <h1 class="card-title">View Your Summary ⏱️</h1> 
+
+                <div id="exact-age">Your age will appear here.</div>
+                
+                <div class="info-box" id="next-birthday">Enter your DOB to see your next birthday countdown!</div> 
+                <div class="info-box" id="zodiac-sign">Your Zodiac sign will be displayed here.</div> 
+            </div>
+
+            <div class="result-card age-card" id="detailed-units-card">
+                <h1 class="card-title">View Age Details ⏱️</h1> 
+
+                <div id="detailed-age">
+                    <div class="unit-card"><span class="unit-value">0</span><span class="unit-label">Total Months</span></div>
+                    <div class="unit-card"><span class="unit-value">0</span><span class="unit-label">Total Weeks</span></div>
+                    <div class="unit-card"><span class="unit-value">0</span><span class="unit-label">Total Days</span></div>
+                    <div class="unit-card"><span class="unit-value">0</span><span class="unit-label">Total Hours</span></div>
+                    <div class="unit-card"><span class="unit-value">0</span><span class="unit-label">Total Minutes</span></div>
+                    <div class="unit-card"><span class="unit-value">0</span><span class="unit-label">Total Seconds</span></div>
+                    <div class="unit-card"><span class="unit-value">0</span><span class="unit-label">Total Milliseconds</span></div>
+                </div>
+                
+                <div class="footer">
+                    Made by Hassan
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // -------------------------------------
+        // --- JAVASCRIPT LOGIC ---
+        // -------------------------------------
+        
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayFormatted = `${yyyy}-${mm}-${dd}`;
+        
+        let liveUpdateInterval;
+        
+        document.getElementById('dob').setAttribute('max', todayFormatted);
+
+        // Utility function to move cards for 2-1-3 layout on desktop
+        function moveCardsForDesktopResult() {
+            if (window.innerWidth < 1024) return;
+            
+            const mainContainer = document.querySelector('.main-container');
+            const resultsContainer = document.getElementById('results-display');
+            const inputCard = document.getElementById('input-card-main');
+            const summaryCard = document.getElementById('primary-info-card');
+            const detailsCard = document.getElementById('detailed-units-card');
+
+            // Hide the input card from its initial place (before the row starts)
+            inputCard.style.display = 'none';
+
+            // Append all three cards to the results container for 2-1-3 flex layout
+            resultsContainer.appendChild(summaryCard);
+            resultsContainer.appendChild(inputCard); // Card 1 is now inside the row
+            resultsContainer.appendChild(detailsCard);
+            
+            // Set the Input card to display as a block/flex item
+            inputCard.style.display = 'block';
+            
+            // Show the flex container
+            resultsContainer.style.display = 'flex';
+        }
+
+        function resetCardsToInitialState() {
+            if (window.innerWidth < 1024) return;
+            
+            const mainContainer = document.querySelector('.main-container');
+            const resultsContainer = document.getElementById('results-display');
+            const inputCard = document.getElementById('input-card-main');
+
+            // Hide the results row
+            resultsContainer.style.display = 'none';
+
+            // Show input card in its original center position
+            inputCard.style.display = 'block';
+            
+            // Move input card back to the top of the main container (before the results container)
+            mainContainer.insertBefore(inputCard, resultsContainer);
+        }
+        
+        // --- Core Helpers (UNCHANGED) ---
+
+        function createUnitCard(value, label, id = '') {
+            const displayValue = id.includes('milli') ? Math.round(value).toLocaleString() : value.toLocaleString();
+            
+            return `
+                <div class="unit-card">
+                    <span class="unit-value" ${id ? 'id="' + id + '"' : ''}>${displayValue}</span>
+                    <span class="unit-label">${label}</span>
+                </div>
+            `;
+        }
+        
+        function updateLiveUnits(birthDate) {
+            const now = new Date();
+            const totalMs = now.getTime() - birthDate.getTime();
+            
+            const totalSeconds = Math.floor(totalMs / 1000);
+            const secondsElement = document.getElementById('total-seconds');
+            if (secondsElement) {
+                secondsElement.textContent = totalSeconds.toLocaleString();
+            }
+
+            const msElement = document.getElementById('total-milliseconds');
+            if (msElement) {
+                 msElement.textContent = Math.round(totalMs).toLocaleString();
+            }
+        }
+
+        function calculateNextBirthday(birthDate, now) {
+            const currentYear = now.getFullYear();
+            const birthMonth = birthDate.getMonth();
+            const birthDay = birthDate.getDate();
+
+            let nextBirthday = new Date(currentYear, birthMonth, birthDay);
+
+            if (nextBirthday < now) {
+                nextBirthday = new Date(currentYear + 1, birthMonth, birthDay);
+            }
+
+            const timeDiff = nextBirthday.getTime() - now.getTime();
+            const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            
+            const formatter = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' });
+            const nextBirthdayDateStr = formatter.format(nextBirthday);
+
+            if (daysRemaining === 0) {
+                 return `🎉 **Happy Birthday!** It's your ${currentYear - birthDate.getFullYear()}th birthday today!`;
+            } else {
+                 return `🎁 Your Next Birthday (${nextBirthdayDateStr}) is in **${daysRemaining} Days**!`;
+            }
+        }
+        
+        function getZodiacSign(birthDate) {
+            const day = birthDate.getDate();
+            const month = birthDate.getMonth() + 1; 
+
+            if ((month == 1 && day <= 19) || (month == 12 && day >= 22)) return "♑ Capricorn (Makar)";
+            if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return "♒ Aquarius (Kumbh)";
+            if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return "♓ Pisces (Meen)";
+            if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return "♈ Aries (Mesh)";
+            if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return "♉ Taurus (Vrishabha)";
+            if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return "♊ Gemini (Mithun)";
+            if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return "♋ Cancer (Karka)";
+            if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return "♌ Leo (Simha)";
+            if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return "♍ Virgo (Kanya)";
+            if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return "♎ Libra (Tula)";
+            if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) return "♏ Scorpio (Vrishchika)";
+            if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return "♐ Sagittarius (Dhanu)";
+            return "Zodiac Not Found"; 
+        }
+
+        /* --- Main Calculation Function --- */
+
+        function calculateAge() {
+            const name = document.getElementById('name').value.trim();
+            const dobInput = document.getElementById('dob').value;
+            
+            const exactAgeDiv = document.getElementById('exact-age');
+            const detailedAgeDiv = document.getElementById('detailed-age');
+            const errorDiv = document.getElementById('error-message');
+            const nextBirthdayDiv = document.getElementById('next-birthday');
+            const zodiacDiv = document.getElementById('zodiac-sign');
+
+            if (liveUpdateInterval) {
+                clearInterval(liveUpdateInterval);
+            }
+            
+            errorDiv.textContent = '';
+            
+            // 1. Validation 
+            if (!name) {
+                errorDiv.textContent = 'Name is required to calculate age.';
+                if (window.innerWidth >= 1024) resetCardsToInitialState();
+                else document.getElementById('results-display').style.display = 'none';
+                return;
+            }
+
+            if (!dobInput) {
+                errorDiv.textContent = 'Please select your Date of Birth.';
+                if (window.innerWidth >= 1024) resetCardsToInitialState();
+                else document.getElementById('results-display').style.display = 'none';
+                return;
+            }
+
+            const birthDate = new Date(dobInput);
+            const now = new Date();
+            
+            if (birthDate > now) {
+                errorDiv.textContent = 'Date of Birth cannot be in the future.';
+                if (window.innerWidth >= 1024) resetCardsToInitialState();
+                else document.getElementById('results-display').style.display = 'none';
+                return;
+            }
+            
+            // 2. Card Arrangement
+            if (window.innerWidth >= 1024) {
+                moveCardsForDesktopResult();
+            } else {
+                document.getElementById('results-display').style.display = 'flex';
+            }
+            
+            // Set initial content
+            exactAgeDiv.innerHTML = 'Calculating...';
+            nextBirthdayDiv.innerHTML = 'Calculating...';
+            zodiacDiv.innerHTML = 'Calculating...';
+            detailedAgeDiv.innerHTML = '';
+            
+            // --- Calculation Logic (UNCHANGED) ---
+            let years = now.getFullYear() - birthDate.getFullYear();
+            let months = now.getMonth() - birthDate.getMonth();
+            let days = now.getDate() - birthDate.getDate();
+
+            if (days < 0) {
+                months--;
+                const lastDayOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+                days += lastDayOfLastMonth;
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+            
+            const totalMs = now.getTime() - birthDate.getTime(); 
+            const MS_PER_DAY = 24 * 60 * 60 * 1000;
+            const MS_PER_WEEK = 7 * MS_PER_DAY;
+            
+            const totalDays = Math.floor(totalMs / MS_PER_DAY);
+            const totalWeeks = Math.floor(totalMs / MS_PER_WEEK); 
+            const totalHours = Math.floor(totalMs / (60 * 60 * 1000));
+            const totalMinutes = Math.floor(totalMs / (60 * 1000));
+            const totalSeconds = Math.floor(totalMs / 1000); 
+            const totalMonthsApprox = (years * 12) + months;
+
+
+            // --- Outputting the Result ---
+            
+            const displayName = name.length > 0 ? name : 'You';
+            
+            // Card 2 Content Update (Age Text Updated)
+            exactAgeDiv.innerHTML = `
+                ${displayName} **you are** **${years} Years, ${months} Months, and ${days} Days** Old!
+            `;
+            
+            nextBirthdayDiv.innerHTML = calculateNextBirthday(birthDate, now);
+            zodiacDiv.innerHTML = `🌟 Your Zodiac Sign is **${getZodiacSign(birthDate)}**!`;
+
+
+            // Card 3 Content Creation
+            let detailedHtml = 
+                createUnitCard(totalMonthsApprox, 'Total Months (Approx)') +
+                createUnitCard(totalWeeks, 'Total Weeks') + 
+                createUnitCard(totalDays, 'Total Days') +
+                createUnitCard(totalHours, 'Total Hours') +
+                createUnitCard(totalMinutes, 'Total Minutes') +
+                createUnitCard(totalSeconds, 'Total Seconds', 'total-seconds') + 
+                createUnitCard(totalMs, 'Total Milliseconds', 'total-milliseconds'); 
+
+            detailedAgeDiv.innerHTML = detailedHtml;
+            
+            // --- Start Live Units Update ---
+            liveUpdateInterval = setInterval(() => {
+                updateLiveUnits(birthDate);
+            }, 10); 
+        }
+        
+        // Initial setup on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ensure the input card is visible and results are hidden initially
+            document.getElementById('results-display').style.display = 'none';
+        });
+
+    </script>
+</body>
+</html>
